@@ -6,6 +6,7 @@ public class Juego
    private byte X, 
                 Y; 
    int nBombas;
+   int descubiertas = 0;
 
    private Bomba[][] tablero;
 
@@ -51,7 +52,7 @@ public class Juego
          case 3:
             X = 20;
             Y = 20;
-            nBombas = 120;
+            nBombas = 100;
             break;
       }
       tablero = new Bomba[X][Y];
@@ -60,7 +61,7 @@ public class Juego
       {
          for ( int yi = 0; yi < Y; yi++ )
          {
-            tablero[xi][yi] = new Bomba();
+            tablero[xi][yi] = new Bomba(xi,yi);
          }
       }
 
@@ -92,7 +93,7 @@ public class Juego
          // incrementar valor de las casillas alrededor
          for ( int i = -1; i <= 1; i++ )
          {
-            for ( int j = -1; j <=1; j++ )
+            for ( int j = -1; j <= 1; j++ )
             {
                try
                {
@@ -104,7 +105,6 @@ public class Juego
                }
             }
          }
-
       }
    }
 
@@ -112,7 +112,6 @@ public class Juego
    
    public void jugar()
    {
-      int descubiertas = 0;
       Integer fila, columna;
       boolean bomba = false;
       mostrarTablero();
@@ -122,21 +121,64 @@ public class Juego
             System.out.print("\n ");
             System.out.print("Seleccionar fila: ");
             fila = sel.getOption();
-         } while ( fila < 0 || fila > Y );
+         } while ( fila < 0 || fila >= Y );
          do {
             System.out.print("\n ");
             System.out.print("Seleccionar columna: ");
             columna = sel.getOption();
-         } while ( columna < 0 || columna > X );
+         } while ( columna < 0 || columna >= X );
             
          bomba = tablero[fila][columna].descubrir();
+         if ( !bomba )
+         {
+            tablero[fila][columna].despejar(tablero);
+         }
+         else if ( bomba )
+         {
+            rendirse();
+         }
          descubiertas++;
          mostrarTablero();
       } while ( descubiertas < 400-nBombas && !bomba );
    }
- 
- 
-   public void mostrarTablero()
+
+
+/*
+   private void descubrirAlrededor( Integer bx, Integer by )
+   {
+      Bomba posicion;
+      int bomba;
+      Integer px, py;
+      if ( tablero[bx][by].obtenerValor() == 0 )
+      {
+         for ( int i = -4; i <= 4; i++ )
+         {
+            px = bx + i;
+            for ( int j = -4; j <= 4; j++ )
+            {
+               py = by + j;
+               try
+               {
+                  posicion = tablero[ px ][ py ]; 
+                  bomba = posicion.obtenerValor(); 
+                  if ( bomba != -1 )
+                  {
+                     posicion.despejar(tablero);
+                     descubiertas++;
+                  }
+               }
+               catch(Exception e )
+               {
+                  continue;
+               }
+            }
+         }
+      }
+   }
+//*/
+   
+   
+   private void mostrarTablero()
    {
       System.out.print("| 0| 1| 2| 3| 4| 5| 6| 7| 8| 9|10|11|12|13|14|15|16|17|18|19|" );
       for ( int i = 0; i < X; i++ )
@@ -150,6 +192,16 @@ public class Juego
       }
       System.out.print("\n");
    }
- //  public Juego(){}
+   
+   public void rendirse()
+   {
+      for (int i = 0; i < X; i++ )
+      {
+         for (int j = 0; j < Y; j++)
+         {
+            tablero[i][j].despejar();
+         }
+      }
+   }
  //  public Juego(){}
 }
